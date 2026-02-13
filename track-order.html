@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footcap - Track Order</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .track-container {
+            max-width: 800px;
+            margin: 150px auto 50px;
+            padding: 30px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .track-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .track-form input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .track-btn {
+            padding: 15px 30px;
+            background: var(--bittersweet);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Timeline Styles */
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 50px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .step {
+            position: relative;
+            text-align: center;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .step.active .step-icon {
+            background: #2ecc71;
+        }
+
+        .step.active~.step .step-icon {
+            background: #e0e0e0;
+        }
+
+        /* Progress Line coloring */
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            height: 4px;
+            background: #2ecc71;
+            width: 0%;
+            z-index: 0;
+            transition: width 0.5s;
+        }
+    </style>
+</head>
+
+<body id="top">
+    <header class="header" data-header>
+        <div class="container">
+            <a href="index.html" class="logo"><img src="./assets/images/logo.svg" width="160" height="50"
+                    alt="Footcap"></a>
+            <nav class="navbar" data-navbar>
+                <ul class="navbar-list">
+                    <li class="navbar-item"><a href="index.html" class="navbar-link">Home</a></li>
+                    <li class="navbar-item"><a href="about.html" class="navbar-link">About</a></li>
+                    <li class="navbar-item"><a href="shop.html" class="navbar-link">Shop</a></li>
+                    
+                    <li class="navbar-item"><a href="contact.html" class="navbar-link">Contact</a></li>
+                </ul>
+                <ul class="nav-action-list">
+                    <li class="language-selector">
+                        <button class="nav-action-btn">
+                            <ion-icon name="globe-outline" aria-hidden="true"></ion-icon>
+                            <span class="nav-action-text">EN</span>
+                            <ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon>
+                        </button>
+                        <ul class="dropdown-list">
+                            <li><a href="#" class="dropdown-link">English - EN</a></li>
+                            <li><a href="#" class="dropdown-link">Hindi - HI</a></li>
+                            <li><a href="#" class="dropdown-link">Tamil - TA</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="track-container">
+        <h1 style="text-align: center; margin-bottom: 20px;">Track Your Order</h1>
+        <div class="track-form">
+            <input type="text" id="order-id" placeholder="Enter Order ID (e.g. 1738870341234)">
+            <button class="track-btn" onclick="trackOrder()">Track</button>
+        </div>
+
+        <div id="track-result" style="display: none;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h3 id="result-id"></h3>
+                <p id="result-status"></p>
+            </div>
+
+            <div class="timeline">
+                <div class="progress-line" id="progress-line"></div>
+
+                <div class="step" id="step-pending">
+                    <div class="step-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <p>Order Placed</p>
+                </div>
+                <div class="step" id="step-shipped">
+                    <div class="step-icon"><i class="fas fa-shipping-fast"></i></div>
+                    <p>Shipped</p>
+                </div>
+                <div class="step" id="step-delivered">
+                    <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                    <p>Delivered</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; padding: 20px; background: #f9f9f9; border-radius: 5px;">
+                <h4>Order Items:</h4>
+                <ul id="track-items" style="list-style: inside; margin-top: 10px;"></ul>
+            </div>
+        </div>
+
+        <p id="track-error" style="color: red; text-align: center; display: none;">Order not found.</p>
+    </main>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="./assets/js/lang-script.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <!-- Uses valid fontawesome CDN normally, falling back to simple icons if offline -->
+    <!-- Using generic unicode or simple structure if CDN fails is safer, but let's assume connectivity -->
+
+    <script>
+        async function trackOrder() {
+            const id = document.getElementById('order-id').value;
+            if (!id) return alert("Please enter an Order ID");
+
+            try {
+                const res = await fetch(`/api/orders/${id}`);
+
+                if (!res.ok) {
+                    document.getElementById('track-error').style.display = 'block';
+                    document.getElementById('track-result').style.display = 'none';
+                    return;
+                }
+
+                const order = await res.json();
+                document.getElementById('track-error').style.display = 'none';
+                document.getElementById('track-result').style.display = 'block';
+
+                document.getElementById('result-id').innerText = `Order #${order.id}`;
+                document.getElementById('result-status').innerText = `Current Status: ${order.status}`;
+                document.getElementById('track-items').innerHTML = order.items.map(i => `<li>${i.title} x ${i.quantity}</li>`).join('');
+
+                // Update Timeline
+                const steps = ['pending', 'shipped', 'delivered'];
+                const status = (order.status || 'Pending').toLowerCase();
+
+                // Reset
+                document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+
+                let activeIndex = -1;
+                if (status.includes('pending') || status.includes('paid')) activeIndex = 0;
+                if (status.includes('shipped')) activeIndex = 1;
+                if (status.includes('delivered')) activeIndex = 2;
+
+                if (activeIndex >= 0) {
+                    document.getElementById('step-pending').classList.add('active');
+                }
+                if (activeIndex >= 1) {
+                    document.getElementById('step-shipped').classList.add('active');
+                }
+                if (activeIndex >= 2) {
+                    document.getElementById('step-delivered').classList.add('active');
+                }
+
+                // Progress Bar Width
+                const percentage = (activeIndex / 2) * 100;
+                document.getElementById('progress-line').style.width = percentage + '%';
+
+            } catch (err) {
+                console.error(err);
+                alert("Error tracking order");
+            }
+        }
+
+        // Auto-track if ID is in URL
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            if (id) {
+                document.getElementById('order-id').value = id;
+                trackOrder();
+            }
+        });
+    </script>
+</body>
+
+</html>
+
+

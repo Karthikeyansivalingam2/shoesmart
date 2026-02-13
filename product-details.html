@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footcap - Product Details</title>
+
+    <!-- 
+    - favicon
+  -->
+    <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+    <!-- 
+    - custom css link
+  -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+
+    <!-- 
+    - google font link
+  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        .product-details {
+            padding-top: 150px;
+            padding-bottom: 50px;
+        }
+
+        .details-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        @media(max-width: 768px) {
+            .details-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .product-image img {
+            width: 100%;
+            border-radius: 10px;
+            max-width: 500px;
+        }
+
+        .product-info h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--eerie-black);
+        }
+
+        .product-price {
+            font-size: 2rem;
+            color: var(--bittersweet);
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .product-desc {
+            font-size: 1.1rem;
+            color: var(--sonic-silver);
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .size-select {
+            margin-bottom: 30px;
+        }
+
+        .size-select select {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .add-cart-btn {
+            background: var(--bittersweet);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .add-cart-btn:hover {
+            background: var(--salmon);
+        }
+    </style>
+</head>
+
+<body id="top">
+
+    <!-- 
+    - #HEADER
+  -->
+
+    <header class="header" data-header>
+        <div class="container">
+
+            <div class="overlay" data-overlay></div>
+
+            <a href="index.html" class="logo">
+                <img src="./assets/images/logo.svg" width="160" height="50" alt="Footcap logo">
+            </a>
+
+            <button class="nav-open-btn" data-nav-open-btn aria-label="Open Menu">
+                <ion-icon name="menu-outline"></ion-icon>
+            </button>
+
+            <nav class="navbar" data-navbar>
+
+                <button class="nav-close-btn" data-nav-close-btn aria-label="Close Menu">
+                    <ion-icon name="close-outline"></ion-icon>
+                </button>
+
+                <a href="index.html" class="logo">
+                    <img src="./assets/images/logo.svg" width="190" height="50" alt="Footcap logo">
+                </a>
+
+                <ul class="navbar-list">
+                    <li class="navbar-item"><a href="index.html" class="navbar-link">Home</a></li>
+                    <li class="navbar-item"><a href="about.html" class="navbar-link">About</a></li>
+                    <li class="navbar-item"><a href="shop.html" class="navbar-link">Shop</a></li>
+
+                    <li class="navbar-item"><a href="contact.html" class="navbar-link">Contact</a></li>
+                </ul>
+
+                <ul class="nav-action-list">
+                    <li>
+                        <button class="nav-action-btn">
+                            <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+                            <span class="nav-action-text">Search</span>
+                        </button>
+                    </li>
+                    <li class="language-selector">
+                        <button class="nav-action-btn">
+                            <ion-icon name="globe-outline" aria-hidden="true"></ion-icon>
+                            <span class="nav-action-text">EN</span>
+                            <ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon>
+                        </button>
+                        <ul class="dropdown-list">
+                            <li><a href="#" class="dropdown-link">English - EN</a></li>
+                            <li><a href="#" class="dropdown-link">Hindi - HI</a></li>
+                            <li><a href="#" class="dropdown-link">Tamil - TA</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="login.html" class="nav-action-btn">
+                            <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+                            <span class="nav-action-text">Login / Register</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="wishlist.html" class="nav-action-btn">
+                            <ion-icon name="heart-outline" aria-hidden="true"></ion-icon>
+                            <span class="nav-action-text">Wishlist</span>
+                            <data class="nav-action-badge" value="0" aria-hidden="true">0</data>
+                        </a>
+                    </li>
+                    <li>
+                        <button class="nav-action-btn" onclick="window.location.href='checkout.html'">
+                            <ion-icon name="bag-outline" aria-hidden="true"></ion-icon>
+                            <data class="nav-action-text" value="318.00">Basket: <strong>$0.00</strong></data>
+                            <data class="nav-action-badge" value="0" aria-hidden="true">0</data>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <article>
+            <section class="section product-details-section" style="padding-top: 150px; padding-bottom: 80px;">
+                <div class="container">
+                    <div class="product-details-wrapper"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start;">
+
+                        <!-- Left: Image Gallery -->
+                        <div class="product-gallery" style="display: flex; gap: 20px;">
+                            <!-- Thumbnails -->
+                            <div class="thumbnails-col"
+                                style="display: flex; flex-direction: column; gap: 15px; width: 80px;">
+                                <img id="thumb-1" src="" class="thumb-img active"
+                                    style="width: 100%; aspect-ratio: 1/1; object-fit: cover; cursor: pointer; border: 2px solid var(--bittersweet);">
+                                <img id="thumb-2" src="" class="thumb-img"
+                                    style="width: 100%; aspect-ratio: 1/1; object-fit: cover; cursor: pointer; border: 2px solid transparent; opacity: 0.7;">
+                                <img id="thumb-3" src="" class="thumb-img"
+                                    style="width: 100%; aspect-ratio: 1/1; object-fit: cover; cursor: pointer; border: 2px solid transparent; opacity: 0.7;">
+                                <img id="thumb-4" src="" class="thumb-img"
+                                    style="width: 100%; aspect-ratio: 1/1; object-fit: cover; cursor: pointer; border: 2px solid transparent; opacity: 0.7;">
+                            </div>
+
+                            <!-- Main Image -->
+                            <div class="main-image-wrapper" style="flex: 1; background: #f9f9f9; position: relative;">
+                                <img id="detail-img" src="" alt="Product Image"
+                                    style="width: 100%; height: auto; object-fit: contain; display: block; mix-blend-mode: multiply;">
+                                <div class="product-badge"
+                                    style="position: absolute; top: 0; left: 0; background: var(--bittersweet); color: white; padding: 5px 15px; font-weight: bold; font-size: 0.9rem;">
+                                    New</div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Info -->
+                        <div class="product-info-col">
+                            <span
+                                style="color: var(--sonic-silver); font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px;">Footwear</span>
+                            <h1 id="detail-title" class="h1"
+                                style="font-size: 3rem; margin-top: 10px; margin-bottom: 20px; font-weight: 700; color: var(--eerie-black);">
+                                Loading...</h1>
+
+                            <div class="price-wrapper"
+                                style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+                                <span id="detail-price"
+                                    style="font-size: 2.2rem; font-weight: 700; color: var(--eerie-black);">₹0.00</span>
+                                <del id="mrp-price" style="color: var(--sonic-silver); font-size: 1.2rem;">₹0.00</del>
+                                <span style="color: var(--bittersweet); font-weight: 700;">(20% OFF)</span>
+                            </div>
+
+                            <p
+                                style="color: var(--sonic-silver); line-height: 1.8; margin-bottom: 40px; font-size: 1.1rem;">
+                                Elevate your style with our premium collection. Designed for maximum comfort and
+                                durability, these shoes are perfect for any occasion. Experience the perfect blend of
+                                fashion and function.
+                            </p>
+
+                            <!-- Size Selector -->
+                            <div class="size-selector" style="margin-bottom: 40px;">
+                                <h3 class="h4" style="margin-bottom: 15px;">Select Size</h3>
+                                <div class="size-options" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <button class="size-btn" onclick="selectSize(this)"
+                                        style="min-width: 50px; height: 50px; border: 1px solid #ddd; background: transparent; font-weight: 600; cursor: pointer; transition: 0.3s; color: var(--eerie-black);">6</button>
+                                    <button class="size-btn" onclick="selectSize(this)"
+                                        style="min-width: 50px; height: 50px; border: 1px solid #ddd; background: transparent; font-weight: 600; cursor: pointer; transition: 0.3s; color: var(--eerie-black);">7</button>
+                                    <button class="size-btn" onclick="selectSize(this)"
+                                        style="min-width: 50px; height: 50px; border: 1px solid #ddd; background: transparent; font-weight: 600; cursor: pointer; transition: 0.3s; color: var(--eerie-black);">8</button>
+                                    <button class="size-btn" onclick="selectSize(this)"
+                                        style="min-width: 50px; height: 50px; border: 1px solid #ddd; background: transparent; font-weight: 600; cursor: pointer; transition: 0.3s; color: var(--eerie-black);">9</button>
+                                    <button class="size-btn" onclick="selectSize(this)"
+                                        style="min-width: 50px; height: 50px; border: 1px solid #ddd; background: transparent; font-weight: 600; cursor: pointer; transition: 0.3s; color: var(--eerie-black);">10</button>
+                                </div>
+                                <span id="selected-size" style="display: none;"></span>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="product-actions" style="display: flex; gap: 20px;">
+                                <div class="qty-wrapper"
+                                    style="display: flex; align-items: center; border: 1px solid var(--eerie-black); padding: 10px 20px; gap: 20px;">
+                                    <button onclick="updateQty(-1)"
+                                        style="font-size: 1.2rem; cursor: pointer;">-</button>
+                                    <span id="qty-display" style="font-weight: 600;">1</span>
+                                    <button onclick="updateQty(1)"
+                                        style="font-size: 1.2rem; cursor: pointer;">+</button>
+                                </div>
+                                <button id="add-to-cart-detail" class="btn btn-primary"
+                                    style="flex: 1; justify-content: center; border-radius: 0;">
+                                    <ion-icon name="bag-handle-outline"></ion-icon> Add to Cart
+                                </button>
+                                <button id="add-to-wishlist-detail" class="btn btn-secondary"
+                                    style="padding: 15px; border: 1px solid var(--eerie-black); cursor: pointer; border-radius: 0;">
+                                    <ion-icon name="heart-outline"></ion-icon>
+                                </button>
+                            </div>
+
+                            <ul style="margin-top: 40px; display: grid; gap: 15px;">
+                                <li style="display: flex; align-items: center; gap: 10px; color: var(--sonic-silver);">
+                                    <ion-icon name="shield-checkmark-outline"
+                                        style="color: var(--eerie-black); font-size: 1.2rem;"></ion-icon> Secure Payment
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 10px; color: var(--sonic-silver);">
+                                    <ion-icon name="refresh-outline"
+                                        style="color: var(--eerie-black); font-size: 1.2rem;"></ion-icon> 30 Days Free
+                                    Returns
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <script>
+        window.changeImage = (src) => {
+            const detailImg = document.getElementById('detail-img');
+            detailImg.style.opacity = '0';
+            setTimeout(() => {
+                detailImg.src = src;
+                detailImg.style.opacity = '1';
+            }, 200);
+
+            // Update active state
+            document.querySelectorAll('.thumb-img').forEach(img => {
+                img.style.borderColor = 'transparent';
+                img.style.opacity = '0.7';
+            });
+            // Highlight active thumb if event source is thumb
+            if (event.target.classList.contains('thumb-img')) {
+                event.target.style.borderColor = 'var(--bittersweet)';
+                event.target.style.opacity = '1';
+            }
+        };
+
+        window.selectSize = (btn) => {
+            document.querySelectorAll('.size-btn').forEach(b => {
+                b.style.borderColor = '#ddd';
+                b.style.background = 'transparent';
+                b.style.color = 'var(--eerie-black)';
+            });
+            btn.style.borderColor = 'var(--eerie-black)';
+            btn.style.background = 'var(--eerie-black)';
+            btn.style.color = 'white';
+            document.getElementById('selected-size').innerText = btn.innerText;
+        };
+
+        window.qty = 1;
+        window.updateQty = (change) => {
+            window.qty += change;
+            if (window.qty < 1) window.qty = 1;
+            document.getElementById('qty-display').innerText = window.qty;
+        };
+    </script>
+    <footer style="background: #f9f9f9; padding: 50px 0; margin-top: 100px; text-align: center;">
+        <div class="container">
+            <p>&copy; 2026 Footcap. All Rights Reserved.</p>
+            <div style="margin-top: 20px;">
+                <a href="index.html" style="margin: 0 10px; color: var(--eerie-black);">Home</a>
+                <a href="admin-login.html" style="margin: 0 10px; color: var(--bittersweet); font-weight: bold;">Admin
+                    Login</a>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+    <script src="./assets/js/script.js"></script>
+    <script src="./assets/js/product-details-renderer.js"></script>
+    <script src="./assets/js/lang-script.js"></script>
+
+</body>
+
+</html>

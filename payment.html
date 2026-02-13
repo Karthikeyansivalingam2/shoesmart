@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footcap - Payment</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <style>
+        .payment-container {
+            max-width: 600px;
+            margin: 150px auto 50px;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .payment-methods {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+
+        .payment-method {
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 30%;
+            transition: 0.3s;
+        }
+
+        .payment-method:hover,
+        .payment-method.selected {
+            border-color: var(--bittersweet);
+            background: #fff5f5;
+        }
+
+        .btn-pay {
+            background: var(--bittersweet);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn-pay:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loader {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: var(--bittersweet);
+        }
+    </style>
+</head>
+
+<body id="top">
+    <header class="header" data-header>
+        <div class="container">
+            <a href="index.html" class="logo"><img src="./assets/images/logo.svg" width="160" height="50"
+                    alt="Footcap"></a>
+        </div>
+    </header>
+
+    <main>
+        <div class="payment-container">
+            <h2>Select Payment Method</h2>
+            <p>Total Amount: <strong id="pay-amount">$0.00</strong></p>
+
+            <div class="payment-methods">
+                <div class="payment-method" onclick="selectMethod(this, 'Credit Card')">
+                    <ion-icon name="card-outline" style="font-size: 2rem;"></ion-icon>
+                    <p>Credit Card</p>
+                </div>
+                <div class="payment-method" onclick="selectMethod(this, 'UPI')">
+                    <ion-icon name="qr-code-outline" style="font-size: 2rem;"></ion-icon>
+                    <p>UPI</p>
+                </div>
+                <div class="payment-method" onclick="selectMethod(this, 'COD')">
+                    <ion-icon name="cash-outline" style="font-size: 2rem;"></ion-icon>
+                    <p>COD</p>
+                </div>
+            </div>
+
+            <button id="pay-btn" class="btn-pay" disabled onclick="processPayment()">Pay Now</button>
+            <div id="loader" class="loader">Processing Payment... <span id="payment-timer">3</span>s</div>
+        </div>
+    </main>
+
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script>
+        let selectedPayment = null;
+        let orderData = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tempOrder = localStorage.getItem('tempOrder');
+            if (!tempOrder) {
+                alert('No order found. Redirecting to cart.');
+                window.location.href = 'index.html';
+                return;
+            }
+            orderData = JSON.parse(tempOrder);
+            document.getElementById('pay-amount').innerText = '$' + orderData.total.toFixed(2);
+        });
+
+        function selectMethod(elem, method) {
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            elem.classList.add('selected');
+            selectedPayment = method;
+            document.getElementById('pay-btn').disabled = false;
+        }
+
+        async function processPayment() {
+            if (!selectedPayment) return;
+
+            document.getElementById('pay-btn').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+
+            let seconds = 3;
+            const timer = setInterval(async () => {
+                seconds--;
+                document.getElementById('payment-timer').innerText = seconds;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    // Complete Order
+                    orderData.paymentStatus = 'Paid via ' + selectedPayment;
+
+                    try {
+                        const response = await fetch('/api/orders', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(orderData)
+                        });
+
+                        if (response.ok) {
+                            alert('Payment Successful! Order Placed.');
+                            localStorage.removeItem('footcap-cart');
+                            localStorage.removeItem('tempOrder');
+                            window.location.href = 'profile.html'; // Redirect to history
+                        } else {
+                            alert('Order creation failed.');
+                            window.location.href = 'checkout.html';
+                        }
+                    } catch (err) {
+                        alert('Error processing order.');
+                    }
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
