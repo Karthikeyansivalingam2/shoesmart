@@ -11,15 +11,25 @@ const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
 
     const from = location.state?.from?.pathname || '/profile';
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        login({
+        setError('');
+        setIsLoading(true);
+
+        const result = await login({
             email: formData.email,
-            password: formData.password,
-            name: formData.email.split('@')[0]
+            password: formData.password
         });
-        navigate(from, { replace: true });
+
+        setIsLoading(false);
+        if (result.success) {
+            navigate(from, { replace: true });
+        } else {
+            setError(result.message);
+        }
     };
 
     return (
@@ -44,6 +54,16 @@ const Login = () => {
                         <h1 className="text-4xl font-black tracking-tighter uppercase mb-2">Welcome Back</h1>
                         <p className="text-foreground/40 font-bold uppercase tracking-widest text-xs">Login to your StepUp account</p>
                     </div>
+
+                    {error && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-xs font-black uppercase tracking-widest text-center"
+                        >
+                            {error}
+                        </motion.div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
@@ -83,9 +103,10 @@ const Login = () => {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             type="submit"
-                            className="w-full bg-foreground text-background py-5 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-accent transition-colors shadow-xl"
+                            disabled={isLoading}
+                            className={`w-full bg-foreground text-background py-5 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-accent transition-colors shadow-xl ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            SIGN IN <ArrowRight size={20} />
+                            {isLoading ? 'SIGNING IN...' : 'SIGN IN'} <ArrowRight size={20} />
                         </motion.button>
                     </form>
 

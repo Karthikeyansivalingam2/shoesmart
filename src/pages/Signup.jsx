@@ -6,13 +6,34 @@ import { useAuth } from '../context/AuthContext';
 
 const Signup = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { register } = useAuth();
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
 
-    const handleSubmit = (e) => {
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        login({ name: formData.name, email: formData.email });
-        navigate('/profile');
+        setError('');
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
+        setIsLoading(true);
+        const result = await register({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password
+        });
+
+        setIsLoading(false);
+        if (result.success) {
+            navigate('/profile');
+        } else {
+            setError(result.message);
+        }
     };
 
     return (
@@ -37,6 +58,16 @@ const Signup = () => {
                         <h1 className="text-4xl font-black tracking-tighter uppercase mb-2">Create Account</h1>
                         <p className="text-foreground/40 font-bold uppercase tracking-widest text-xs">Join the StepUp community</p>
                     </div>
+
+                    {error && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-xs font-black uppercase tracking-widest text-center"
+                        >
+                            {error}
+                        </motion.div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
@@ -105,9 +136,10 @@ const Signup = () => {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             type="submit"
-                            className="w-full bg-accent text-white py-5 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-foreground transition-colors shadow-xl shadow-accent/20"
+                            disabled={isLoading}
+                            className={`w-full bg-accent text-white py-5 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-foreground transition-colors shadow-xl shadow-accent/20 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            CREATE ACCOUNT <ArrowRight size={20} />
+                            {isLoading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'} <ArrowRight size={20} />
                         </motion.button>
                     </form>
 

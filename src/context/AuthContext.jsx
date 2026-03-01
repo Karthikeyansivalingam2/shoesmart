@@ -7,44 +7,59 @@ export const AuthProvider = ({ children }) => {
         const saved = localStorage.getItem('user');
         return saved ? JSON.parse(saved) : null;
     });
+    const [token, setToken] = useState(localStorage.getItem('token') || null);
 
-    const login = (userData) => {
-        const { email, password } = userData;
+    const login = async (userData) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
 
-        let role = 'customer';
-        let name = userData.name || 'John Doe';
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Login failed');
 
-        // Check Hardcoded Credentials
-        if (email === 'admin' && password === 'admin123') {
-            role = 'admin';
-            name = 'Super Admin';
-        } else if (email === 'delivery' && password === 'delivery123') {
-            role = 'delivery';
-            name = 'Vikram Delivery';
-        } else if (email.includes('admin')) {
-            role = 'admin'; // Keep keyword support for flexibility
-        } else if (email.includes('delivery')) {
-            role = 'delivery';
+            setUser(data.user);
+            setToken(data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('token', data.token);
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
         }
+    };
 
-        const userObj = {
-            name: name,
-            email: email.includes('@') ? email : `${email}@stepup.com`,
-            role: role,
-            avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
-            id: 'USR' + Math.floor(Math.random() * 1000)
-        };
-        setUser(userObj);
-        localStorage.setItem('user', JSON.stringify(userObj));
+    const register = async (userData) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Registration failed');
+
+            setUser(data.user);
+            setToken(data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('token', data.token);
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
     };
 
     const logout = () => {
         setUser(null);
+        setToken(null);
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{ user, token, login, logout, register, isAuthenticated: !!user }}>
             {children}
         </AuthContext.Provider>
     );
