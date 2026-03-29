@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
                 };
                 setUser(userObj);
                 localStorage.setItem('user', JSON.stringify(userObj));
-                return { success: true };
+                return { success: true, user: userObj };
             } else {
                 return { success: false, message: data.message || 'Login failed' };
             }
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
                 };
                 setUser(userObj);
                 localStorage.setItem('user', JSON.stringify(userObj));
-                return { success: true };
+                return { success: true, user: userObj };
             } else {
                 return { success: false, message: data.message || 'Signup failed' };
             }

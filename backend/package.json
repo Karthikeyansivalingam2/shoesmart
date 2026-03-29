@@ -4,13 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-<<<<<<< HEAD
     "start": "node index.js",
-    "dev": "nodemon index.js"
-=======
-    "start": "node server.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14
   },
   "keywords": [],
   "author": "",
@@ -23,12 +19,8 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-<<<<<<< HEAD
-    "mongoose": "^9.2.1"
-=======
     "mongoose": "^9.3.1",
     "nodemon": "^3.1.14",
     "razorpay": "^2.9.6"
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14
   }
 }

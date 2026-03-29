@@ -10,10 +10,7 @@ const Login = () => {
     const location = useLocation();
     const { login, user } = useAuth();
     const [formData, setFormData] = useState({ email: '', password: '' });
-<<<<<<< HEAD:frontend/src/pages/Login.jsx
     const [loading, setLoading] = useState(false);
-=======
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Login.jsx
     const [error, setError] = useState('');
 
     const from = location.state?.from?.pathname || '/profile';
@@ -30,29 +27,20 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-<<<<<<< HEAD:frontend/src/pages/Login.jsx
         setLoading(true);
-        
-        const res = await login(formData.email, formData.password);
-        
-        setLoading(false);
-        if (res.success) {
-            const target = from !== '/profile' ? from : '/';
-            navigate(target, { replace: true });
-        } else {
-            setError(res.message);
-=======
-        
         try {
-            const result = await login({
-                email: formData.email,
-                password: formData.password
-            });
-            const target = result.role === 'admin' ? '/admin' : from;
-            navigate(target, { replace: true });
+            const res = await login(formData.email, formData.password);
+            
+            if (res.success) {
+                const target = res.user?.role === 'admin' ? '/admin' : from;
+                navigate(target, { replace: true });
+            } else {
+                setError(res.message || 'Login failed');
+            }
         } catch (err) {
-            setError(err.message);
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Login.jsx
+            setError(err.message || 'Login error occurred');
+        } finally {
+            setLoading(false);
         }
     };
 

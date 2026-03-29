@@ -1,41 +1,19 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const User = require('../models/User');
-<<<<<<< HEAD
-=======
 const mongoose = require('mongoose');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
 const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
+    key_id: process.env.RAZORPAY_KEY_ID || 'yourkeyhere',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || 'yoursecrethere'
 });
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14
 
 const createOrder = async (req, res) => {
     try {
         const { items, totalAmount, shippingAddress, phone, paymentMethod } = req.body;
-<<<<<<< HEAD
-        const order = await Order.create({
-            customer: req.user._id,
-            items,
-            totalAmount,
-            shippingAddress,
-            phone,
-            paymentMethod
-        });
-
-        // Update Stock
-        for (const item of items) {
-            await Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.quantity } });
-        }
-
-        res.status(201).json(order);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-=======
-        const isDummyMode = process.env.RAZORPAY_KEY_ID.includes('yourkeyhere');
+        const isDummyMode = !process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.includes('yourkeyhere');
         
         let order;
         if (paymentMethod === 'Online') {
@@ -104,7 +82,7 @@ const createOrder = async (req, res) => {
 const verifyPayment = async (req, res) => {
     try {
         const { orderId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-        const isDummyMode = process.env.RAZORPAY_KEY_ID.includes('yourkeyhere');
+        const isDummyMode = !process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.includes('yourkeyhere');
 
         let isValid = false;
 
@@ -139,7 +117,6 @@ const verifyPayment = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ message: error.message });
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14
     }
 };
 
@@ -204,10 +181,7 @@ const getAdminStats = async (req, res) => {
 
 module.exports = {
     createOrder,
-<<<<<<< HEAD
-=======
     verifyPayment,
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14
     getMyOrders,
     getAllOrders,
     updateOrderStatus,

@@ -8,52 +8,28 @@ const Signup = () => {
     const navigate = useNavigate();
     const { signup } = useAuth();
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
-<<<<<<< HEAD:frontend/src/pages/Signup.jsx
     const [loading, setLoading] = useState(false);
-=======
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Signup.jsx
     const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-<<<<<<< HEAD:frontend/src/pages/Signup.jsx
-        console.log('SIGNUP_SUBMITTED:', formData.email);
-        setError('');
-        
-        if (formData.password !== formData.confirmPassword) {
-            return setError('Passwords do not match');
-        }
-
         setLoading(true);
-        const res = await signup({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password
-        });
-        
-        setLoading(false);
-        if (res.success) {
-            navigate('/profile');
-        } else {
-            setError(res.message);
-=======
-        setError('');
-        
-        if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
-
         try {
-            await signup({ 
+            const res = await signup({ 
                 name: formData.name, 
                 email: formData.email, 
                 password: formData.password 
             });
-            navigate('/profile');
+            
+            if (res.success) {
+                navigate('/profile');
+            } else {
+                setError(res.message || 'Signup failed');
+            }
         } catch (err) {
-            setError(err.message);
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Signup.jsx
+            setError(err.message || 'Signup error occurred');
+        } finally {
+            setLoading(false);
         }
     };
 

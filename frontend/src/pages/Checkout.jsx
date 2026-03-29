@@ -3,31 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { ChevronLeft, ChevronRight, CheckCircle, CreditCard, Truck, User, Smartphone, Globe, Wallet } from 'lucide-react';
-<<<<<<< HEAD:frontend/src/pages/Checkout.jsx
-import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-
-const Checkout = () => {
-    const { cart, cartTotal, clearCart } = useCart();
-    const { user } = useAuth();
-=======
 import { Link, useNavigate } from 'react-router-dom';
 
 const Checkout = () => {
     const { cart, cartTotal, clearCart } = useCart();
     const { user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
-    
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Checkout.jsx
     const [step, setStep] = useState(1);
     const [isOrdered, setIsOrdered] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState('upi');
-<<<<<<< HEAD:frontend/src/pages/Checkout.jsx
-    const [orderId, setOrderId] = useState(null);
-
-    const [shippingDetails, setShippingDetails] = useState({
-=======
     const [orderId, setOrderId] = useState('');
     const [showPaymentUI, setShowPaymentUI] = useState(false);
     const [activePaymentTab, setActivePaymentTab] = useState('upi');
@@ -35,16 +20,11 @@ const Checkout = () => {
     const [mockOrderData, setMockOrderData] = useState(null);
 
     const [formData, setFormData] = useState({
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Checkout.jsx
         firstName: '',
         lastName: '',
         email: '',
         address: '',
         city: '',
-<<<<<<< HEAD:frontend/src/pages/Checkout.jsx
-        phone: ''
-    });
-=======
         zip: '',
         phone: ''
     });
@@ -53,13 +33,12 @@ const Checkout = () => {
         if (user) {
             setFormData(prev => ({
                 ...prev,
-                firstName: user.name.split(' ')[0] || '',
-                lastName: user.name.split(' ')[1] || '',
+                firstName: user.name?.split(' ')[0] || '',
+                lastName: user.name?.split(' ')[1] || '',
                 email: user.email || ''
             }));
         }
     }, [user]);
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Checkout.jsx
 
     const steps = [
         { id: 1, title: 'Shipping', icon: User },
@@ -78,15 +57,6 @@ const Checkout = () => {
     };
 
     const handlePrev = () => setStep(prev => prev - 1);
-<<<<<<< HEAD:frontend/src/pages/Checkout.jsx
-    const handleOrder = async () => {
-        if (!user) return alert('Please login to place order');
-        setIsProcessing(true);
-        try {
-            const res = await fetch('http://localhost:5001/api/orders', {
-                method: 'POST',
-                headers: { 
-=======
 
     const handlePayment = async () => {
         if (!isAuthenticated) {
@@ -98,11 +68,9 @@ const Checkout = () => {
         setIsProcessing(true);
 
         try {
-            // 1. Create Order in Backend (and Razorpay Order if Online)
-            const orderResponse = await fetch('http://localhost:5000/api/orders', {
+            const orderResponse = await fetch('http://localhost:5001/api/orders', {
                 method: 'POST',
                 headers: {
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Checkout.jsx
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.token}`
                 },
@@ -116,27 +84,6 @@ const Checkout = () => {
                         image: item.image
                     })),
                     totalAmount: cartTotal,
-<<<<<<< HEAD:frontend/src/pages/Checkout.jsx
-                    shippingAddress: `${shippingDetails.address}, ${shippingDetails.city}`,
-                    phone: shippingDetails.phone,
-                    paymentMethod: selectedPayment === 'upi' ? 'UPI' : 'COD'
-                })
-            });
-            
-            if (res.ok) {
-                const data = await res.json();
-                setOrderId(data._id);
-                setIsOrdered(true);
-                clearCart();
-            } else {
-                alert('Order Failed');
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsProcessing(false);
-        }
-=======
                     shippingAddress: `${formData.address}, ${formData.city}, ${formData.zip}`,
                     phone: formData.phone,
                     paymentMethod: selectedPayment === 'cod' ? 'COD' : 'Online'
@@ -149,7 +96,6 @@ const Checkout = () => {
                 throw new Error(orderData.message || 'Failed to create order');
             }
 
-            // 2. Handle COD
             if (selectedPayment === 'cod') {
                 setOrderId(orderData._id);
                 setIsOrdered(true);
@@ -158,8 +104,7 @@ const Checkout = () => {
                 return;
             }
 
-            // 3. Handle Online Payment (Razorpay)
-            if (orderData.isMock) {
+            if (orderData.isMock || !orderData.razorpayOrderId) {
                 setMockOrderData(orderData);
                 setShowPaymentUI(true);
                 setIsProcessing(false);
@@ -203,7 +148,7 @@ const Checkout = () => {
 
     const handleVerify = async (orderId, razorpay_order_id, razorpay_payment_id, razorpay_signature) => {
         try {
-            const verifyRes = await fetch('http://localhost:5000/api/orders/verify-payment', {
+            const verifyRes = await fetch('http://localhost:5001/api/orders/verify-payment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -236,13 +181,12 @@ const Checkout = () => {
         setIsProcessing(true);
         setTimeout(() => {
             handleVerify(
-                mockOrderData.orderId,
-                mockOrderData.razorpayOrderId,
+                mockOrderData.orderId || mockOrderData._id,
+                mockOrderData.razorpayOrderId || 'mock_rp_id',
                 'pay_mock_success_123',
                 'mock_signature'
             );
         }, 1500);
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Checkout.jsx
     };
 
     if (isOrdered) {
@@ -257,11 +201,7 @@ const Checkout = () => {
                 </div>
                 <h1 className="text-5xl font-black uppercase tracking-tighter">Order Success!</h1>
                 <p className="text-foreground/60 max-w-md mx-auto text-lg font-medium">
-<<<<<<< HEAD:frontend/src/pages/Checkout.jsx
-                    Thank you for choosing STEPUP. Your order #{orderId?.slice(-6)} is being processed and will be delivered soon.
-=======
-                    Thank you for choosing ShoeMart. Your order ID <b>#{orderId.slice(-6).toUpperCase()}</b> is being processed.
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Checkout.jsx
+                    Thank you for choosing StepUp. Your order #{orderId?.slice(-6).toUpperCase()} is being processed and will be delivered soon.
                 </p>
                 <div className="pt-8">
                     <Link to="/">
@@ -315,21 +255,6 @@ const Checkout = () => {
                                     >
                                         <h3 className="text-2xl font-black uppercase tracking-tighter">Shipping Details</h3>
                                         <div className="grid grid-cols-2 gap-6">
-<<<<<<< HEAD:frontend/src/pages/Checkout.jsx
-                                            <Input label="First Name" placeholder="John" value={shippingDetails.firstName} onChange={e => setShippingDetails({...shippingDetails, firstName: e.target.value})} />
-                                            <Input label="Last Name" placeholder="Doe" value={shippingDetails.lastName} onChange={e => setShippingDetails({...shippingDetails, lastName: e.target.value})} />
-                                            <div className="col-span-2">
-                                                <Input label="Email Address" type="email" placeholder="john@example.com" value={shippingDetails.email} onChange={e => setShippingDetails({...shippingDetails, email: e.target.value})} />
-                                            </div>
-                                            <div className="col-span-1">
-                                                <Input label="Phone Number" placeholder="9876543210" value={shippingDetails.phone} onChange={e => setShippingDetails({...shippingDetails, phone: e.target.value})} />
-                                            </div>
-                                            <div className="col-span-2">
-                                                <Input label="Full Address" placeholder="123 Street, City, Country" value={shippingDetails.address} onChange={e => setShippingDetails({...shippingDetails, address: e.target.value})} />
-                                            </div>
-                                            <Input label="City" placeholder="California" value={shippingDetails.city} onChange={e => setShippingDetails({...shippingDetails, city: e.target.value})} />
-                                            <Input label="Postal Code" placeholder="90001" />
-=======
                                             <Input label="First Name" required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} placeholder="John" />
                                             <Input label="Last Name" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} placeholder="Doe" />
                                             <div className="col-span-2">
@@ -338,9 +263,11 @@ const Checkout = () => {
                                             <div className="col-span-2">
                                                 <Input label="Full Address" required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="123 Street, City, Country" />
                                             </div>
-                                            <Input label="City" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} placeholder="California" />
-                                            <Input label="Phone Number" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="9876543210" />
->>>>>>> 8795f6cb2054a9f14f394ce82d1acf8e0772dd14:src/pages/Checkout.jsx
+                                            <Input label="City" required value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} placeholder="California" />
+                                            <Input label="Postal Code" required value={formData.zip} onChange={e => setFormData({...formData, zip: e.target.value})} placeholder="90001" />
+                                            <div className="col-span-2">
+                                                <Input label="Phone Number" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="9876543210" />
+                                            </div>
                                         </div>
                                     </motion.div>
                                 )}
