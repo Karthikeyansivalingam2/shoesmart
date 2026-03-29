@@ -93,9 +93,9 @@ const Hero = () => {
                         className="relative z-10 cursor-grab active:cursor-grabbing"
                     >
                         <img
-                            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1000&auto=format&fit=crop"
+                            src="/images/red_hero_sneaker.png"
                             alt="Hero Product"
-                            className="w-full h-auto drop-shadow-[0_35px_35px_rgba(0,0,0,0.5)] animate-float"
+                            className="w-full h-auto drop-shadow-[0_35px_35px_rgba(0,0,0,0.5)] animate-float rounded-3xl"
                         />
                     </motion.div>
 

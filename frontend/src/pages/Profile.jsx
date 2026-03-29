@@ -9,9 +9,28 @@ import {
 } from 'lucide-react';
 
 const Profile = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, updateAuthUser } = useAuth();
     const navigate = useNavigate();
     const [activeView, setActiveView] = useState('overview');
+    const [orders, setOrders] = useState([]);
+    const [addresses, setAddresses] = useState(user?.addresses || []);
+    const [isAddingAddress, setIsAddingAddress] = useState(false);
+    const [newAddr, setNewAddr] = useState({ type: 'Home', address: '' });
+    const [loading, setLoading] = useState(true);
+
+    React.useEffect(() => {
+        const fetchMyOrders = async () => {
+            if (!user) return;
+            try {
+                const res = await fetch('http://localhost:5001/api/orders/myorders', {
+                    headers: { 'Authorization': `Bearer ${user.token}` }
+                });
+                if (res.ok) setOrders(await res.json());
+            } catch (err) { console.error(err); }
+            finally { setLoading(false); }
+        };
+        fetchMyOrders();
+    }, [user]);
 
     // Redirect admins directly to the command panel
     React.useEffect(() => {
@@ -49,30 +68,33 @@ const Profile = () => {
                         </button>
                         <h2 className="text-3xl font-black uppercase tracking-tighter mb-8">Purchase History</h2>
                         <div className="space-y-4">
-                            {[
-                                { id: '#STP-9482', date: 'Feb 12, 2024', status: 'Delivered', total: '₹12,499.00', items: 2 },
-                                { id: '#STP-8821', date: 'Jan 28, 2024', status: 'Shipped', total: '₹4,899.00', items: 1 },
-                            ].map(order => (
-                                <div key={order.id} className="glass p-6 rounded-[2rem] flex items-center justify-between group hover:border-accent/40 transition-colors">
-                                    <div className="flex gap-6 items-center">
-                                        <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center">
-                                            <Package size={20} />
-                                        </div>
-                                        <div>
-                                            <p className="font-black text-sm uppercase">{order.id}</p>
-                                            <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{order.date}</p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right flex items-center gap-8">
-                                        <div className="hidden md:block">
-                                            <p className="text-xs font-black uppercase tracking-widest">{order.status}</p>
-                                            <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-tight">{order.items} Items</p>
-                                        </div>
-                                        <p className="text-lg font-black">{order.total}</p>
-                                        <ChevronRight size={18} className="text-foreground/20 group-hover:text-accent" />
-                                    </div>
+                            {orders.length === 0 ? (
+                                <div className="glass p-12 rounded-[2.5rem] text-center">
+                                    <p className="text-foreground/40 font-black uppercase tracking-widest text-xs">No orders found.</p>
                                 </div>
-                            ))}
+                            ) : (
+                                orders.map(order => (
+                                    <div key={order._id} className="glass p-6 rounded-[2rem] flex items-center justify-between group hover:border-accent/40 transition-colors">
+                                        <div className="flex gap-6 items-center">
+                                            <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center">
+                                                <Package size={20} />
+                                            </div>
+                                            <div>
+                                                <p className="font-black text-sm uppercase">#{order._id.slice(-6)}</p>
+                                                <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right flex items-center gap-8">
+                                            <div className="hidden md:block">
+                                                <p className="text-xs font-black uppercase tracking-widest">{order.status}</p>
+                                                <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-tight">{order.items?.length || 0} Items</p>
+                                            </div>
+                                            <p className="text-lg font-black">₹{order.totalAmount}</p>
+                                            <ChevronRight size={18} className="text-foreground/20 group-hover:text-accent" />
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </motion.div>
                 );
@@ -84,27 +106,70 @@ const Profile = () => {
                         </button>
                         <div className="flex justify-between items-center mb-8">
                             <h2 className="text-3xl font-black uppercase tracking-tighter">Your Addresses</h2>
-                            <button className="flex items-center gap-2 bg-foreground text-background px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-colors">
-                                <Plus size={14} /> Add New
+                            <button onClick={() => setIsAddingAddress(!isAddingAddress)} className="flex items-center gap-2 bg-foreground text-background px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-colors">
+                                <Plus size={14} /> {isAddingAddress ? 'Cancel' : 'Add New'}
                             </button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {[
-                                { type: 'Home', address: '123 Fashion Ave, NY 10001, USA', default: true },
-                                { type: 'Work', address: '456 Tech Park, CA 94103, USA', default: false },
-                            ].map((addr, i) => (
-                                <div key={i} className={`glass p-8 rounded-[2rem] space-y-4 border ${addr.default ? 'border-accent' : 'border-foreground/5'}`}>
-                                    <div className="flex justify-between items-start">
-                                        <h3 className="font-black uppercase tracking-widest text-sm">{addr.type}</h3>
-                                        {addr.default && <span className="bg-accent text-white text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest">Default</span>}
+
+                        {isAddingAddress && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="glass p-8 rounded-[2rem] mb-8 space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest opacity-40">Type (Home/Work)</label>
+                                        <input value={newAddr.type} onChange={e => setNewAddr({...newAddr, type: e.target.value})} className="w-full bg-secondary/30 border border-foreground/5 px-4 py-3 rounded-xl focus:outline-none focus:border-accent font-bold text-xs" />
                                     </div>
-                                    <p className="text-sm font-medium text-foreground/60 leading-relaxed">{addr.address}</p>
-                                    <div className="pt-4 flex gap-4">
-                                        <button className="text-[10px] font-black uppercase tracking-widest text-accent hover:underline transition-all">Edit</button>
-                                        <button className="text-[10px] font-black uppercase tracking-widest text-foreground/20 hover:text-red-500 transition-all">Delete</button>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest opacity-40">Full Address</label>
+                                        <input value={newAddr.address} onChange={e => setNewAddr({...newAddr, address: e.target.value})} className="w-full bg-secondary/30 border border-foreground/5 px-4 py-3 rounded-xl focus:outline-none focus:border-accent font-bold text-xs" />
                                     </div>
                                 </div>
-                            ))}
+                                <button onClick={async () => {
+                                    const updated = [...addresses, newAddr];
+                                    const res = await fetch('http://localhost:5001/api/auth/profile', {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${user.token}` },
+                                        body: JSON.stringify({ addresses: updated })
+                                    });
+                                    if(res.ok) {
+                                        const data = await res.json();
+                                        setAddresses(data.addresses);
+                                        updateAuthUser({ addresses: data.addresses });
+                                        setIsAddingAddress(false);
+                                        setNewAddr({ type: 'Home', address: '' });
+                                    }
+                                }} className="bg-accent text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest">Save Address</button>
+                            </motion.div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {addresses.length === 0 ? (
+                                <p className="col-span-2 text-center py-10 opacity-40 font-bold uppercase text-xs">No addresses saved yet.</p>
+                            ) : (
+                                addresses.map((addr, i) => (
+                                    <div key={i} className={`glass p-8 rounded-[2rem] space-y-4 border ${addr.isDefault ? 'border-accent' : 'border-foreground/5'}`}>
+                                        <div className="flex justify-between items-start">
+                                            <h3 className="font-black uppercase tracking-widest text-sm">{addr.type}</h3>
+                                            {addr.isDefault && <span className="bg-accent text-white text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest">Default</span>}
+                                        </div>
+                                        <p className="text-sm font-medium text-foreground/60 leading-relaxed">{addr.address}</p>
+                                        <div className="pt-4 flex gap-4">
+                                            <button onClick={async () => {
+                                                const updated = addresses.filter((_, idx) => idx !== i);
+                                                const res = await fetch('http://localhost:5001/api/auth/profile', {
+                                                    method: 'PUT',
+                                                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${user.token}` },
+                                                    body: JSON.stringify({ addresses: updated })
+                                                });
+                                                if(res.ok) {
+                                                    const data = await res.json();
+                                                    setAddresses(data.addresses);
+                                                    updateAuthUser({ addresses: data.addresses });
+                                                }
+                                            }} className="text-[10px] font-black uppercase tracking-widest text-foreground/20 hover:text-red-500 transition-all">Delete</button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </motion.div>
                 );
@@ -178,21 +243,24 @@ const Profile = () => {
                         <div className="mt-8 space-y-6">
                             <h3 className="text-xl font-black tracking-tighter uppercase px-2">Recent Activity</h3>
                             <div className="space-y-4">
-                                {[
-                                    { icon: Package, text: 'Order #STP-9482 dispatched', time: '2 hours ago' },
-                                    { icon: Star, text: 'You reviewed Jordan Red Retros', time: '1 day ago' },
-                                    { icon: Clock, text: 'Profile updated successfully', time: '3 days ago' }
-                                ].map((item, i) => (
-                                    <div key={i} className="flex items-center gap-4 px-4">
-                                        <div className="w-8 h-8 rounded-lg bg-foreground/5 flex items-center justify-center text-foreground/40">
-                                            <item.icon size={14} />
-                                        </div>
-                                        <div className="flex-grow border-b border-foreground/5 pb-4 flex justify-between items-center">
-                                            <p className="text-xs font-bold uppercase tracking-tight">{item.text}</p>
-                                            <span className="text-[10px] text-foreground/20 font-black uppercase tracking-widest">{item.time}</span>
-                                        </div>
+                                {orders.length === 0 ? (
+                                    <div className="flex items-center gap-4 px-4 opacity-40">
+                                        <Activity size={14} />
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em]">No recent activity detected.</p>
                                     </div>
-                                ))}
+                                ) : (
+                                    orders.slice(0, 3).map((order) => (
+                                        <div key={order._id} className="flex items-center gap-4 px-4">
+                                            <div className="w-8 h-8 rounded-lg bg-foreground/5 flex items-center justify-center text-foreground/40">
+                                                <Package size={14} />
+                                            </div>
+                                            <div className="flex-grow border-b border-foreground/5 pb-4 flex justify-between items-center">
+                                                <p className="text-xs font-bold uppercase tracking-tight">Order #{order._id.slice(-6)} {order.status}</p>
+                                                <span className="text-[10px] text-foreground/20 font-black uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>
@@ -272,11 +340,11 @@ const Profile = () => {
 
                         <div className="glass p-6 rounded-[2rem] grid grid-cols-2 gap-4">
                             <div className="text-center">
-                                <p className="text-2xl font-black text-accent">12</p>
+                                <p className="text-2xl font-black text-accent">{orders.length}</p>
                                 <p className="text-[8px] font-black uppercase text-foreground/30 tracking-widest">Orders</p>
                             </div>
                             <div className="text-center border-l border-foreground/5">
-                                <p className="text-2xl font-black text-accent">42</p>
+                                <p className="text-2xl font-black text-accent">0</p>
                                 <p className="text-[8px] font-black uppercase text-foreground/30 tracking-widest">Reviews</p>
                             </div>
                         </div>

@@ -1,13 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Hero from '../components/home/Hero';
 import ProductCard from '../components/common/ProductCard';
-import { products } from '../data/products';
-import { ArrowRight, Zap, Shield, RotateCcw } from 'lucide-react';
+// import { products } from '../data/products';
+import { ArrowRight, Zap, Shield, RotateCcw, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
-    const featuredProducts = products.filter(p => p.isTrending).slice(0, 4);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTrending = async () => {
+            try {
+                const res = await fetch('http://localhost:5001/api/products');
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    setProducts(data.filter(p => p && (p.isTrending || p.isNew)).slice(0, 4));
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTrending();
+    }, []);
+
 
     return (
         <motion.div
@@ -63,8 +82,12 @@ const Home = () => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {featuredProducts.map((product, i) => (
-                            <ProductCard key={product.id} product={product} index={i} />
+                        {loading ? (
+                            <div className="col-span-full flex justify-center py-20">
+                                <Loader2 size={40} className="animate-spin text-accent" />
+                            </div>
+                        ) : products.map((product, i) => (
+                            <ProductCard key={product.id || product._id} product={product} index={i} />
                         ))}
                     </div>
                 </div>
@@ -80,7 +103,7 @@ const Home = () => {
                         className="relative h-[500px] rounded-[3rem] overflow-hidden bg-foreground text-background"
                     >
                         <img
-                            src="https://images.unsplash.com/photo-1556906781-9a412961c28c?q=80&w=1000&auto=format&fit=crop"
+                            src="/images/urban_sneakers_feet.png"
                             className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
                             alt="Promotion"
                         />

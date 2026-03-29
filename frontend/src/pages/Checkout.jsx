@@ -3,13 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { ChevronLeft, ChevronRight, CheckCircle, CreditCard, Truck, User, Smartphone, Globe, Wallet } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Checkout = () => {
     const { cart, cartTotal, clearCart } = useCart();
+    const { user } = useAuth();
     const [step, setStep] = useState(1);
     const [isOrdered, setIsOrdered] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState('upi');
+    const [orderId, setOrderId] = useState(null);
+
+    const [shippingDetails, setShippingDetails] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        address: '',
+        city: '',
+        phone: ''
+    });
 
     const steps = [
         { id: 1, title: 'Shipping', icon: User },
@@ -19,14 +31,45 @@ const Checkout = () => {
 
     const handleNext = () => setStep(prev => prev + 1);
     const handlePrev = () => setStep(prev => prev - 1);
-    const handleOrder = () => {
+    const handleOrder = async () => {
+        if (!user) return alert('Please login to place order');
         setIsProcessing(true);
-        // Simulate a payment gateway processing delay
-        setTimeout(() => {
+        try {
+            const res = await fetch('http://localhost:5001/api/orders', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
+                body: JSON.stringify({
+                    items: cart.map(item => ({
+                        product: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        size: item.size,
+                        image: item.image
+                    })),
+                    totalAmount: cartTotal,
+                    shippingAddress: `${shippingDetails.address}, ${shippingDetails.city}`,
+                    phone: shippingDetails.phone,
+                    paymentMethod: selectedPayment === 'upi' ? 'UPI' : 'COD'
+                })
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                setOrderId(data._id);
+                setIsOrdered(true);
+                clearCart();
+            } else {
+                alert('Order Failed');
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
             setIsProcessing(false);
-            setIsOrdered(true);
-            clearCart();
-        }, 3000);
+        }
     };
 
     if (isOrdered) {
@@ -41,7 +84,7 @@ const Checkout = () => {
                 </div>
                 <h1 className="text-5xl font-black uppercase tracking-tighter">Order Success!</h1>
                 <p className="text-foreground/60 max-w-md mx-auto text-lg font-medium">
-                    Thank you for choosing STEPUP. Your order #82910 is being processed and will be delivered soon.
+                    Thank you for choosing STEPUP. Your order #{orderId?.slice(-6)} is being processed and will be delivered soon.
                 </p>
                 <div className="pt-8">
                     <Link to="/">
@@ -95,15 +138,18 @@ const Checkout = () => {
                                     >
                                         <h3 className="text-2xl font-black uppercase tracking-tighter">Shipping Details</h3>
                                         <div className="grid grid-cols-2 gap-6">
-                                            <Input label="First Name" placeholder="John" />
-                                            <Input label="Last Name" placeholder="Doe" />
+                                            <Input label="First Name" placeholder="John" value={shippingDetails.firstName} onChange={e => setShippingDetails({...shippingDetails, firstName: e.target.value})} />
+                                            <Input label="Last Name" placeholder="Doe" value={shippingDetails.lastName} onChange={e => setShippingDetails({...shippingDetails, lastName: e.target.value})} />
                                             <div className="col-span-2">
-                                                <Input label="Email Address" type="email" placeholder="john@example.com" />
+                                                <Input label="Email Address" type="email" placeholder="john@example.com" value={shippingDetails.email} onChange={e => setShippingDetails({...shippingDetails, email: e.target.value})} />
+                                            </div>
+                                            <div className="col-span-1">
+                                                <Input label="Phone Number" placeholder="9876543210" value={shippingDetails.phone} onChange={e => setShippingDetails({...shippingDetails, phone: e.target.value})} />
                                             </div>
                                             <div className="col-span-2">
-                                                <Input label="Full Address" placeholder="123 Street, City, Country" />
+                                                <Input label="Full Address" placeholder="123 Street, City, Country" value={shippingDetails.address} onChange={e => setShippingDetails({...shippingDetails, address: e.target.value})} />
                                             </div>
-                                            <Input label="City" placeholder="California" />
+                                            <Input label="City" placeholder="California" value={shippingDetails.city} onChange={e => setShippingDetails({...shippingDetails, city: e.target.value})} />
                                             <Input label="Postal Code" placeholder="90001" />
                                         </div>
                                     </motion.div>

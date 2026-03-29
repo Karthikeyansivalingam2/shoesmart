@@ -10,7 +10,11 @@ const userSchema = new mongoose.Schema({
         default: 'customer'
     },
     phone: { type: String },
-    address: { type: String },
+    addresses: [{
+        type: { type: String, default: 'Home' },
+        address: { type: String, required: true },
+        isDefault: { type: Boolean, default: false }
+    }],
     avatar: { type: String },
 }, { timestamps: true });
 

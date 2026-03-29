@@ -13,7 +13,7 @@ const Navbar = () => {
     const { isDarkMode, toggleTheme } = useTheme();
     const { cartCount, setIsCartOpen } = useCart();
     const { wishlist } = useWishlist();
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, logout } = useAuth();
     const location = useLocation();
 
     useEffect(() => {
@@ -81,12 +81,30 @@ const Navbar = () => {
                     </button>
 
                     {isAuthenticated ? (
-                        <Link to={user.role === 'admin' ? "/admin" : "/profile"} className="flex items-center gap-2 hover:text-accent transition-colors group">
-                            <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-[10px] font-black text-white shadow-lg border border-background">
-                                {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        <div className="relative group">
+                            <Link to={user.role === 'admin' ? "/admin" : "/profile"} className="flex items-center gap-2 hover:text-accent transition-colors">
+                                <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-[10px] font-black text-white shadow-lg border border-background">
+                                    {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                </div>
+                                <span className="hidden lg:block text-[10px] font-black uppercase tracking-widest">{user.name.split(' ')[0]}</span>
+                            </Link>
+                            
+                            {/* Dropdown Menu */}
+                            <div className="absolute right-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                                <div className="bg-background/95 backdrop-blur-md border border-foreground/10 rounded-2xl p-2 min-w-[150px] shadow-2xl">
+                                    <Link to={user.role === 'admin' ? "/admin" : "/profile"} className="block px-4 py-2.5 text-[10px] font-black uppercase tracking-widest hover:bg-foreground/5 rounded-xl transition-colors">
+                                        {user.role === 'admin' ? 'Dashboard' : 'Profile'}
+                                    </Link>
+                                    <div className="h-px bg-foreground/10 my-1 mx-2" />
+                                    <button 
+                                        onClick={() => logout()} 
+                                        className="w-full text-left px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-[#D11919] hover:bg-[#D11919]/10 rounded-xl transition-colors flex items-center gap-2"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
                             </div>
-                            <span className="hidden lg:block text-[10px] font-black uppercase tracking-widest">{user.name.split(' ')[0]}</span>
-                        </Link>
+                        </div>
                     ) : (
                         <Link to="/login" className="hover:text-accent transition-colors">
                             <UserIcon size={20} />

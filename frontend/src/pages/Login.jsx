@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, Github, Chrome, Shield, Globe } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Github, Chrome, Shield, Globe, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 
@@ -10,34 +10,34 @@ const Login = () => {
     const location = useLocation();
     const { login, user } = useAuth();
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const from = location.state?.from?.pathname || '/profile';
 
     // Redirect if already logged in
-    React.useEffect(() => {
+    useEffect(() => {
         if (user) {
-            const target = user.role === 'admin' ? '/admin' : '/profile';
+            const target = from !== '/profile' ? from : '/';
             navigate(target, { replace: true });
         }
-    }, [user, navigate]);
+    }, [user, navigate, from]);
 
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setLoading(true);
         
-        // Determine role for redirection
-        let nextRole = 'customer';
-        if (formData.email === 'admin' && formData.password === 'admin123') nextRole = 'admin';
-        else if (formData.email.includes('admin')) nextRole = 'admin';
+        const res = await login(formData.email, formData.password);
         
-        login({
-            email: formData.email,
-            password: formData.password,
-            name: formData.email.split('@')[0]
-        });
-
-        const target = nextRole === 'admin' ? '/admin' : from;
-        navigate(target, { replace: true });
+        setLoading(false);
+        if (res.success) {
+            const target = from !== '/profile' ? from : '/';
+            navigate(target, { replace: true });
+        } else {
+            setError(res.message);
+        }
     };
 
     return (
@@ -47,7 +47,6 @@ const Login = () => {
             exit={{ opacity: 0 }}
             className="min-h-screen pt-32 pb-24 px-6 flex items-center justify-center relative overflow-hidden"
         >
-            {/* Background Decorative Circles */}
             <div className="absolute top-1/4 -left-20 w-96 h-96 bg-accent/10 rounded-full blur-[100px] -z-10" />
             <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -z-10" />
 
@@ -62,6 +61,12 @@ const Login = () => {
                         <h1 className="text-4xl font-black tracking-tighter uppercase mb-2">Welcome Back</h1>
                         <p className="text-foreground/40 font-bold uppercase tracking-widest text-xs">Login to your StepUp account</p>
                     </div>
+
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-100/50 border border-red-200 text-red-600 rounded-2xl text-[10px] font-black uppercase tracking-widest">
+                            {error}
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
@@ -98,12 +103,13 @@ const Login = () => {
                         </div>
 
                         <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                            disabled={loading}
+                            whileHover={{ scale: loading ? 1 : 1.02 }}
+                            whileTap={{ scale: loading ? 1 : 0.98 }}
                             type="submit"
-                            className="w-full bg-foreground text-background py-5 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-accent transition-colors shadow-xl"
+                            className={`w-full bg-foreground text-background py-5 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-accent transition-colors shadow-xl ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            SIGN IN <ArrowRight size={20} />
+                            {loading ? 'Processing...' : 'SIGN IN'} <ArrowRight size={20} />
                         </motion.button>
                     </form>
 
@@ -126,13 +132,12 @@ const Login = () => {
                         <div className="mt-8 pt-8 border-t border-foreground/5 text-center">
                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/20 mb-6">Quick Access Roles</p>
                             <div className="flex flex-wrap justify-center gap-3">
-
                                 <button
                                     type="button"
-                                    onClick={() => setFormData({ email: 'customer@test.com', password: 'password' })}
+                                    onClick={() => setFormData({ email: 'admin', password: 'admin123' })}
                                     className="px-4 py-2 rounded-xl bg-secondary text-foreground text-[9px] font-black uppercase tracking-widest hover:bg-foreground hover:text-background transition-all"
                                 >
-                                    Customer (Fill)
+                                    Admin (Fill)
                                 </button>
                             </div>
                         </div>
@@ -146,12 +151,8 @@ const Login = () => {
                     </p>
 
                     <div className="mt-12 pt-8 border-t border-foreground/5 flex flex-col gap-6 items-center">
-                        <Link to="/admin/login" className="flex items-center justify-center gap-3 text-[10px] font-black text-foreground/40 uppercase tracking-[0.4em] hover:text-accent transition-all group">
+                        <Link to="/admin" className="flex items-center justify-center gap-3 text-[10px] font-black text-foreground/40 uppercase tracking-[0.4em] hover:text-accent transition-all group">
                             <Shield size={14} className="group-hover:rotate-12 transition-transform text-accent" /> Administrative Terminal
-                        </Link>
-                        <div className="h-px w-20 bg-foreground/5" />
-                        <Link to="/" className="text-[9px] font-black text-foreground/10 uppercase tracking-[0.6em] hover:text-foreground transition-all flex items-center gap-2 group">
-                            <Globe size={12} className="group-hover:scale-110 transition-transform" /> Back to Storefront
                         </Link>
                     </div>
                 </motion.div>
